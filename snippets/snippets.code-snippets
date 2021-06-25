@@ -1,0 +1,57 @@
+{
+    "Rudderstack Integration Starter Template": {
+        "prefix": "!rsi-gen",
+        "body": [
+            "const { EventType } = require(\"..\/..\/..\/constants\");",
+            "const { CONFIG_CATEGORIES, MAPPING_CONFIG } = require(\".\/config\");",
+            "const get = require(\"get-value\");",
+            "const {\r\n  defaultRequestConfig,\r\n  getFieldValueFromMessage,\r\n  constructPayload,\r\n  defaultPostRequestConfig\r\n} = require(\"..\/..\/util\");",
+            "$0",
+            "const responseBuilderSimple = (message, category, destination) => {\r\n  let payload = {};\r\n  let contact = constructPayload(message, MAPPING_CONFIG[category.name]);\r\n  payload.contact = contact;\r\n  if (payload) {\r\n    const responseBody = { ...payload, apiKey: destination.Config.apiKey };\r\n    const response = defaultRequestConfig();\r\n    response.endpoint = String(destination.Config.apiUrl).concat(String(category.endPoint));\r\n    response.method = defaultPostRequestConfig.requestMethod;\r\n    response.headers = {\r\n      \"Content-Type\": \"application\/json\",\r\n      \"Api-Token\": destination.Config.apiKey\r\n    };\r\n    response.userId = getFieldValueFromMessage(message, \"userId\");\r\n    response.body.JSON = responseBody;\r\n    return response;\r\n  }\r\n  \/\/ fail-safety for developer error\r\n  throw new Error(\"Payload could not be constructed\");\r\n};",
+            "$0",
+            "const processEvent = (message, destination) => {\r\n  if (!message.type) {\r\n    throw Error(\"Message Type is not present. Aborting message.\");\r\n  }\r\n  const messageType = message.type.toLowerCase();\r\n\r\n  let category;\r\n  switch (messageType) {\r\n    case EventType.IDENTIFY:\r\n      category = CONFIG_CATEGORIES.IDENTIFY;\r\n      break;\r\n    case EventType.PAGE:\r\n      category = CONFIG_CATEGORIES.PAGE;\r\n      break;\r\n    case EventType.SCREEN:\r\n      category = CONFIG_CATEGORIES.SCREEN;\r\n      break;\r\n    case EventType.TRACK:\r\n      category = CONFIG_CATEGORIES.TRACK;\r\n      break;\r\n    default:\r\n      throw new Error(\"Message type not supported\");\r\n  }\r\n  return responseBuilderSimple(message, category, destination);\r\n};",
+            "$0",
+            "const process = event => {\r\n  return processEvent(event.message, event.destination);\r\n};",
+            "$1exports.process = process;"
+        ],
+        "description": "Creates standard Rudderstack Integration template"
+    },
+    "Rudderstack Integration Test Template" : {
+        "prefix": "!rsit-gen",
+        "body": [
+            "const integration = \"integration\";",
+            "const name = \"Integration\";",
+            "const fs = require(\"fs\");",
+            "const path = require(\"path\");",
+            "const transformer = require(`..\/v0\/destinations\/${integration}\/transform`);",
+            "$0",
+            "const inputDataFile = fs.readFileSync(\r\n  path.resolve(__dirname, `.\/data\/${integration}_input.json`)\r\n);",
+            "$0",
+            "const outputDataFile = fs.readFileSync(\r\n  path.resolve(__dirname, `.\/data\/${integration}_output.json`)\r\n);",
+            "const inputData = JSON.parse(inputDataFile);",
+            "const expectedData = JSON.parse(outputDataFile);",
+            "inputData.forEach((input, index) => {\r\n  it(`${name} - payload: ${index}`, async () => {\r\n    try {\r\n      const output = transformer.process(input);\r\n      expect(output).toEqual(expectedData[index]);\r\n    } catch (error) {\r\n      expect(error.message).toEqual(expectedData[index].error);\r\n    }\r\n  })\r\n});",
+            "$1"
+
+        ],
+        "description": "Creates standard Rudderstack Integration Test template"
+    },
+    "Rudderstack Integration Config Template" :{
+        "prefix": "!rsic-gen",
+        "body": [
+            "const { getMappingConfig } = require(\"..\/..\/util\");",
+            "$0",
+            "const BASE_ENDPOINT = \"https:\/\/api.integration.com\/service\";",
+            "$0",
+            "const CONFIG_CATEGORIES = {\r\n  IDENTIFY: { name: \"Identify\" , endPoint:\"\/api\/3\/identify\"},\r\n  PAGE: { name: \"Page\" , endPoint:\"\/api\/3\/page\"},\r\n  SCREEN: { name: \"Screen\" , endPoint:\"\/api\/3\/screen\"},\r\n  TRACK: { name: \"Track\" , endPoint:\"\/api\/3\/track\"}\r\n};",
+            "$0",
+            "const MAPPING_CONFIG = getMappingConfig(CONFIG_CATEGORIES, __dirname);",
+            "$0",
+            "module.exports = {\r\n  BASE_ENDPOINT,\r\n  CONFIG_CATEGORIES,\r\n  MAPPING_CONFIG\r\n};",
+            "$1"
+
+        ],
+        "description": "Creates standart Rudderstack Integration Config template"
+    }
+
+}
