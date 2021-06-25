@@ -21,8 +21,7 @@ Generate Integration test biolerplate code using `!rsit-gen` command
 Unix/Linux
 ```
 cd ~/.vscode/extensions/ 
-git clone repo-link
-
+git clone git@github.com:utsabc/rsinsnippets.git
 ```
 Restart VS-Code, and you should see RSInSnippets Installed as VS-Code extenstion
 

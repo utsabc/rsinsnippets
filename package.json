@@ -6,7 +6,7 @@
     "publisher": "utsabc-rudder",
     "repository": {
         "type": "git",
-        "url": "https://github.com/utsabc/myplugin"
+        "url": "https://github.com/utsabc/rsinsnippets"
     },
     "icon": "icon.png",
     "engines": {
